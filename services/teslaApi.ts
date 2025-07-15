@@ -106,7 +106,6 @@ interface TeslaVehicleData {
   scheduled_departure_time: number;
   supercharger_session_trip_planner: boolean;
   time_to_full_charge: number;
-  timestamp: number;
   trip_charging: boolean;
   usable_battery_level: number;
   user_charge_enable_request: boolean | null;
@@ -157,7 +156,7 @@ interface TeslaVehicleData {
   power: number;
   shift_state: string | null;
   speed: number | null;
-  timestamp: number;
+  
 
   // Vehicle Config
   aux_park_lamps: string;
@@ -196,7 +195,6 @@ interface TeslaVehicleData {
   spoiler_type: string;
   sun_roof_installed: number | null;
   third_row_seats: string;
-  timestamp: number;
   trim_badging: string;
   use_range_badging: boolean;
   utc_offset_seconds: number;
