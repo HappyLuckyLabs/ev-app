@@ -58,7 +58,7 @@ npm run dev
 
 ## Deployment
 
-### Deploy to Vercel
+### Deploy to Vercel (Recommended)
 
 1. **Quick Deploy**:
    [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/ev-connect)
@@ -66,18 +66,38 @@ npm run dev
 2. **Manual Deploy**:
    - Push code to GitHub
    - Connect GitHub repo to Vercel
-   - Set environment variables in Vercel dashboard:
+   - Vercel will automatically detect the project settings
+   - Set environment variables in Vercel dashboard (optional):
      - `TESLA_CLIENT_ID`
-     - `TESLA_CLIENT_SECRET`
-     - `TESLA_REDIRECT_URI` (your-domain.vercel.app/callback)
+     - `TESLA_CLIENT_SECRET` 
+     - `TESLA_REDIRECT_URI` (https://your-domain.vercel.app/callback)
 
 ### Deploy to Other Platforms
 
 The app is a standard React SPA and can be deployed to:
-- **Netlify**: `npm run build` → deploy `dist/` folder
-- **GitHub Pages**: Use `gh-pages` package
-- **AWS S3**: Upload `dist/` folder with CloudFront
-- **Firebase Hosting**: Use Firebase CLI
+
+- **Netlify**: 
+  ```bash
+  npm run build
+  # Deploy dist/ folder
+  ```
+
+- **GitHub Pages**: 
+  ```bash
+  npm install --save-dev gh-pages
+  npm run build
+  npx gh-pages -d dist
+  ```
+
+- **AWS S3 + CloudFront**: Upload `dist/` folder
+
+- **Firebase Hosting**: 
+  ```bash
+  npm install -g firebase-tools
+  firebase init hosting
+  npm run build
+  firebase deploy
+  ```
 
 ## Tesla API Setup
 
@@ -92,14 +112,15 @@ The app is a standard React SPA and can be deployed to:
 3. Note your Client ID and Client Secret
 
 ### Step 3: Configure Application
-Option A - Environment Variables:
+
+**Option A - Environment Variables:**
 ```env
 TESLA_CLIENT_ID=your_client_id
 TESLA_CLIENT_SECRET=your_client_secret
 TESLA_REDIRECT_URI=https://yourdomain.com/callback
 ```
 
-Option B - Programmatic Configuration:
+**Option B - Programmatic Configuration:**
 ```typescript
 import { configureTeslaApi } from './services/config';
 
@@ -116,6 +137,7 @@ configureTeslaApi({
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
+- `npm run typecheck` - Run TypeScript checks
 
 ## Project Structure
 
@@ -126,9 +148,18 @@ configureTeslaApi({
 ├── services/            # API services and utilities
 ├── styles/              # Global CSS styles
 ├── App.tsx              # Main app component
-└── src/
-    └── main.tsx         # App entry point
+├── src/
+│   └── main.tsx         # App entry point
+├── vercel.json          # Vercel deployment config
+└── vite.config.ts       # Vite build configuration
 ```
+
+## Configuration Files
+
+- **vercel.json**: Vercel deployment configuration with SPA routing and security headers
+- **vite.config.ts**: Vite build configuration optimized for production
+- **tailwind.config.ts**: Tailwind CSS v4 configuration
+- **tsconfig.json**: TypeScript configuration
 
 ## Features Overview
 
@@ -147,7 +178,21 @@ configureTeslaApi({
 - Touch-optimized interface
 - Responsive design for all screen sizes
 - Native app-like navigation
-- Offline-capable (planned)
+- PWA-ready (manifest included)
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Build Errors**: Make sure you're using Node.js 18 or higher
+2. **Tesla API Not Working**: Check your environment variables are set correctly
+3. **Deployment Issues**: Ensure vercel.json is correctly configured for SPA routing
+
+### Vercel Deployment Tips
+
+- The app uses client-side routing, so vercel.json includes rewrites to handle SPA navigation
+- Environment variables should be set in the Vercel dashboard, not committed to the repo
+- The build command is automatically detected by Vercel
 
 ## Contributing
 

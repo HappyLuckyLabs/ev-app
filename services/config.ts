@@ -122,15 +122,23 @@ export function getAppConfig(): AppConfig {
 }
 
 // Check if we're in development mode and log helpful information
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  const status = getTeslaConfigStatus();
-  if (!status.configured) {
-    console.group('🚗 EV Connect - Tesla API Setup');
-    console.log('Tesla API is not configured. Missing:', status.missingFields.join(', '));
-    console.log('📖 Setup instructions:', TESLA_SETUP_INSTRUCTIONS.steps);
-    console.log('💻 Programmatic setup:', TESLA_SETUP_INSTRUCTIONS.programmaticSetup);
-    console.groupEnd();
-  } else {
-    console.log('🚗 Tesla API is configured and ready!');
+// Only run in browser environment to avoid issues during build
+if (typeof window !== 'undefined') {
+  // Check if we're in development mode
+  const isDevelopment = window.location.hostname === 'localhost' || 
+                       window.location.hostname === '127.0.0.1' ||
+                       window.location.hostname.includes('.local');
+  
+  if (isDevelopment) {
+    const status = getTeslaConfigStatus();
+    if (!status.configured) {
+      console.group('🚗 EV Connect - Tesla API Setup');
+      console.log('Tesla API is not configured. Missing:', status.missingFields.join(', '));
+      console.log('📖 Setup instructions:', TESLA_SETUP_INSTRUCTIONS.steps);
+      console.log('💻 Programmatic setup:', TESLA_SETUP_INSTRUCTIONS.programmaticSetup);
+      console.groupEnd();
+    } else {
+      console.log('🚗 Tesla API is configured and ready!');
+    }
   }
 }
