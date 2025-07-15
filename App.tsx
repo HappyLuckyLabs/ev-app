@@ -7,7 +7,7 @@ import { RegistrationSearch } from './components/RegistrationSearch';
 import { Button } from './components/ui/button';
 import { Search, LogOut, Home, FileText, RefreshCw } from 'lucide-react';
 import { Toaster } from './components/ui/sonner';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { vehicleDataService, VehicleData, DetailedVehicleData } from './services/vehicleDataService';
 import { TeslaVehicle } from './services/teslaApi';
 
