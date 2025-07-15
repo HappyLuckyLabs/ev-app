@@ -133,13 +133,12 @@ class VehicleDataService {
   // Transform Tesla API data to our format
   private transformTeslaData(teslaData: TeslaVehicleData, vehicle: TeslaVehicle): VehicleData {
     // Calculate battery health from voltage spread (simplified estimation)
-    const voltageSpread = teslaData.charge_rate ? 
-      Math.abs((teslaData.charge_rate.charger_voltage || 0) - 400) / 400 : 0;
+    const voltageSpread = Math.abs((teslaData.charger_voltage || 0) - 400) / 400;
     const batteryHealth = Math.max(85, 100 - (voltageSpread * 50));
 
     // Calculate energy remaining (simplified estimation)
     const batteryCapacity = this.getBatteryCapacity(vehicle.display_name);
-    const energyRemaining = (teslaData.charge_rate?.battery_level || 0) / 100 * batteryCapacity;
+    const energyRemaining = (teslaData.battery_level || 0) / 100 * batteryCapacity;
 
     // Map charging state
     const chargeStateMap: { [key: string]: string } = {
@@ -152,8 +151,8 @@ class VehicleDataService {
 
     // Get location name from coordinates
     const locationName = this.getLocationName(
-      teslaData.drive_state?.latitude || 0,
-      teslaData.drive_state?.longitude || 0
+      teslaData.latitude || 0,
+      teslaData.longitude || 0
     );
 
     return {
@@ -163,37 +162,37 @@ class VehicleDataService {
       vin: vehicle.vin,
       registration: vehicle.display_name.split(' ')[0] || 'N/A',
       
-      batteryLevel: teslaData.charge_rate?.battery_level || 0,
-      estBatteryRange: Math.round((teslaData.charge_rate?.est_battery_range || 0) * 1.60934), // miles to km
+      batteryLevel: teslaData.battery_level || 0,
+      estBatteryRange: Math.round((teslaData.est_battery_range || 0) * 1.60934), // miles to km
       energyRemaining: Math.round(energyRemaining * 10) / 10,
       batteryHealth: Math.round(batteryHealth),
       
-      chargeState: chargeStateMap[teslaData.charge_rate?.charging_state || 'Disconnected'] || 'Disconnected',
-      detailedChargeState: teslaData.charge_rate?.charging_state || 'NotCharging',
-      chargeAmps: teslaData.charge_rate?.charge_amps || 0,
-      chargerVoltage: teslaData.charge_rate?.charger_voltage || 0,
-      dcChargingPower: teslaData.charge_rate?.charger_power || 0,
-      acChargingPower: teslaData.charge_rate?.charger_power || 0,
-      chargeLimitSoc: teslaData.charge_rate?.charge_limit_soc || 90,
-      batteryHeaterOn: teslaData.charge_rate?.battery_heater_on || false,
-      acChargingEnergyIn: teslaData.charge_rate?.charge_energy_added || 0,
+      chargeState: chargeStateMap[teslaData.charging_state || 'Disconnected'] || 'Disconnected',
+      detailedChargeState: teslaData.charging_state || 'NotCharging',
+      chargeAmps: teslaData.charge_amps || 0,
+      chargerVoltage: teslaData.charger_voltage || 0,
+      dcChargingPower: teslaData.charger_power || 0,
+      acChargingPower: teslaData.charger_power || 0,
+      chargeLimitSoc: teslaData.charge_limit_soc || 90,
+      batteryHeaterOn: teslaData.battery_heater_on || false,
+      acChargingEnergyIn: teslaData.charge_energy_added || 0,
       dcChargingEnergyIn: 0,
       
-      chargePortDoorOpen: teslaData.charge_rate?.charge_port_door_open || false,
-      chargePortLatch: teslaData.charge_rate?.charge_port_latch || 'Engaged',
-      chargePortColdWeatherMode: teslaData.charge_rate?.charge_port_cold_weather_mode || false,
-      fastChargerPresent: teslaData.charge_rate?.fast_charger_present || false,
-      fastChargerType: teslaData.charge_rate?.fast_charger_type || 'CCS2',
+      chargePortDoorOpen: teslaData.charge_port_door_open || false,
+      chargePortLatch: teslaData.charge_port_latch || 'Engaged',
+      chargePortColdWeatherMode: teslaData.charge_port_cold_weather_mode || false,
+      fastChargerPresent: teslaData.fast_charger_present || false,
+      fastChargerType: teslaData.fast_charger_type || 'CCS2',
       
-      vehicleSpeed: Math.round((teslaData.drive_state?.speed || 0) * 1.60934), // mph to km/h
-      odometer: Math.round((teslaData.vehicle_state?.odometer || 0) * 1.60934), // miles to km
+      vehicleSpeed: Math.round((teslaData.speed || 0) * 1.60934), // mph to km/h
+      odometer: Math.round((teslaData.odometer || 0) * 1.60934), // miles to km
       location: {
-        lat: teslaData.drive_state?.latitude || 0,
-        lng: teslaData.drive_state?.longitude || 0,
+        lat: teslaData.latitude || 0,
+        lng: teslaData.longitude || 0,
         name: locationName
       },
       
-      bmsState: teslaData.charge_rate?.charging_state === 'Charging' ? 'Charging' : 'Active',
+      bmsState: teslaData.charging_state === 'Charging' ? 'Charging' : 'Active',
       brickVoltageMax: 4.15, // Tesla doesn't expose individual cell voltages via API
       brickVoltageMin: 4.12,
       
@@ -207,18 +206,18 @@ class VehicleDataService {
     
     return {
       ...baseData,
-      batteryTemperature: teslaData.climate_state?.battery_heater ? 26 : 24, // Estimated
+      batteryTemperature: teslaData.battery_heater ? 26 : 24, // Estimated
       chargingStatus: baseData.chargeState,
       chargingPower: baseData.dcChargingPower || baseData.acChargingPower,
       voltageSpread: baseData.brickVoltageMax - baseData.brickVoltageMin,
       
       doorStates: {
-        driverFront: teslaData.vehicle_state?.df === 1 || false,
-        passengerFront: teslaData.vehicle_state?.pf === 1 || false,
-        driverRear: teslaData.vehicle_state?.dr === 1 || false,
-        passengerRear: teslaData.vehicle_state?.pr === 1 || false,
-        frunk: teslaData.vehicle_state?.ft === 1 || false,
-        trunk: teslaData.vehicle_state?.rt === 1 || false,
+        driverFront: teslaData.df === 1 || false,
+        passengerFront: teslaData.pf === 1 || false,
+        driverRear: teslaData.dr === 1 || false,
+        passengerRear: teslaData.pr === 1 || false,
+        frunk: teslaData.ft === 1 || false,
+        trunk: teslaData.rt === 1 || false,
       },
       
       range: baseData.estBatteryRange,
@@ -283,22 +282,22 @@ class VehicleDataService {
       {
         name: 'Battery Management System',
         status: 'good' as const,
-        value: `${teslaData.charge_rate?.charging_state || 'Ready'} - Normal Operation`
+        value: `${teslaData.charging_state || 'Ready'} - Normal Operation`
       },
       {
         name: 'Battery Heater',
         status: 'good' as const,
-        value: teslaData.charge_rate?.battery_heater_on ? 'On - Preconditioning' : 'Off - Temperature Normal'
+        value: teslaData.battery_heater_on ? 'On - Preconditioning' : 'Off - Temperature Normal'
       },
       {
         name: 'Charge Port System',
         status: 'good' as const,
-        value: teslaData.charge_rate?.charge_port_door_open ? 'Open - Connected' : 'Closed - Ready'
+        value: teslaData.charge_port_door_open ? 'Open - Connected' : 'Closed - Ready'
       },
       {
         name: 'Climate Control',
-        status: teslaData.climate_state?.is_climate_on ? 'good' as const : 'good' as const,
-        value: teslaData.climate_state?.is_climate_on ? 'Active' : 'Standby'
+        status: teslaData.is_climate_on ? 'good' as const : 'good' as const,
+        value: teslaData.is_climate_on ? 'Active' : 'Standby'
       },
       {
         name: 'Vehicle Safety Systems',
@@ -308,7 +307,7 @@ class VehicleDataService {
     ];
 
     // Add warning if battery level is low
-    if (teslaData.charge_rate?.battery_level && teslaData.charge_rate.battery_level < 20) {
+    if (teslaData.battery_level && teslaData.battery_level < 20) {
       checks.push({
         name: 'Battery Level',
         status: 'warning' as const,

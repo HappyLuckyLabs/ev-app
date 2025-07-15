@@ -54,7 +54,6 @@ interface TeslaVehicleData {
   sentry_mode_available: boolean;
   smart_summon_available: boolean;
   summon_standby_mode_enabled: boolean;
-  timestamp: number;
   valet_mode: boolean;
   valet_pin_needed: boolean;
   vehicle_name: string;
@@ -141,7 +140,6 @@ interface TeslaVehicleData {
   side_mirror_heaters: boolean;
   steering_wheel_heater: boolean;
   supports_fan_only_cabin_overheat_protection: boolean;
-  timestamp: number;
   wiper_blade_heater: boolean;
 
   // Drive State
